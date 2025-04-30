@@ -63,7 +63,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ showSearchButton = false }) => {
                 {shouldShowSearchButton && (
                     <button
                         type="submit"
-                        className="px-4 py-2 bg-[#78B3CE] text-white rounded-r-md hover:bg-[#5A8BA6] transition-colors h-10 flex items-center justify-center"
+                        className="px-4 py-2 bg-[#78B3CE] text-white rounded-r-md hover:bg-[#5A8BA6] transition-colors h-10 flex items-center justify-center whitespace-nowrap"
                     >
                         검색
                     </button>

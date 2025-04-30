@@ -11,14 +11,13 @@ spring:
     ansi:
       enabled: ALWAYS
   profiles:
-    active: prod
+    active: dev
     include: secret
   datasource:
 
-
-#   url: jdbc:mysql://localhost:3307/recorddb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    url: jdbc:mysql://localhost:3333/recorddb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-#   url: jdbc:mysql://localhost:3306/recorddb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3307/recorddb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#    url: jdbc:mysql://localhost:3333/recorddb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#    url: jdbc:mysql://localhost:3306/recorddb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
 
     username: commitmate
     password: commitmate
@@ -42,8 +41,8 @@ spring:
             scope: profile_nickname, account_email
             client-name: Kakao
             authorization-grant-type: authorization_code
-#            redirect-uri: "https://api.blog.re-cord.site/login/oauth2/code/kakao"
-            redirect-uri: "${custom.site.backUrl}/{action}/oauth2/code/{registrationId}"
+            redirect-uri: "https://api.blog.re-cord.site/login/oauth2/code/kakao"
+#            redirect-uri: "${custom.site.backUrl}/{action}/oauth2/code/{registrationId}"
           #            redirect-uri: "http://localhost:8090/login/oauth2/code/kakao"
 
           github:
@@ -54,8 +53,8 @@ spring:
               - user:email
             client-name: Github
             authorization-grant-type: authorization_code
-#            redirect-uri: "https://api.blog.re-cord.site/login/oauth2/code/github"
-            redirect-uri: "${custom.site.backUrl}/{action}/oauth2/code/{registrationId}"
+            redirect-uri: "https://api.blog.re-cord.site/login/oauth2/code/github"
+#            redirect-uri: "${custom.site.backUrl}/{action}/oauth2/code/{registrationId}"
 
           google:
             clientId: ON_SECRET
@@ -100,6 +99,6 @@ custom:
     backUrl: "https://api.blog.${custom.prod.cookieDomain}"
   site:
     name: "BLOG DEV"
-    cookieDomain: "${custom.prod.cookieDomain}"
-    frontUrl: "${custom.prod.frontUrl}"
-    backUrl: "${custom.prod.backUrl}"
+    cookieDomain: "${custom.dev.cookieDomain}"
+    frontUrl: "${custom.dev.frontUrl}"
+    backUrl: "${custom.dev.backUrl}"

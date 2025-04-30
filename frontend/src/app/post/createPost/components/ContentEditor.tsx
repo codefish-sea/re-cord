@@ -1,10 +1,8 @@
 'use client'
 
 import React, { ReactNode, useRef, useState, useEffect, forwardRef, useImperativeHandle } from 'react'
-import { Editor } from '@tinymce/tinymce-react'
-import type { Editor as TinyMCEEditor } from 'tinymce'
-import type { IAllProps } from '@tinymce/tinymce-react'
-import { useEditorConfig } from '@/app/post/createPost/hooks/useEditorConfig'
+import Quill from 'quill'
+import 'quill/dist/quill.snow.css' // 기본 스타일
 import { useImageHandler } from '@/app/post/createPost/hooks/useImageHandler'
 
 // 컴포넌트 ref 타입 정의
@@ -24,31 +22,111 @@ interface ContentEditorProps {
 
 const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(
     ({ value, onChange, height = 500, actions, plainTextMode = false, onImageDrop, uploadImageToS3 }, ref) => {
-        // 환경 변수에서 API 키 가져오기
-        const apiKey = process.env.NEXT_PUBLIC_TINYMCE_API_KEY
-        const editorRef = useRef<TinyMCEEditor | null>(null)
+        const quillRef = useRef<Quill | null>(null)
+        const editorRef = useRef<HTMLDivElement>(null)
         const [editorContent, setEditorContent] = useState(value || '')
 
         // 이미지 핸들링 로직을 별도 훅으로 분리
-        const { tempImages, setTempImages, fileDropCache, handleFileDrop } = useImageHandler(onImageDrop)
+        const { tempImages, setTempImages, handleFileDrop } = useImageHandler(onImageDrop)
+
+        // Quill 에디터 초기화
+        useEffect(() => {
+            if (editorRef.current && !quillRef.current) {
+                const toolbarOptions = plainTextMode
+                    ? false
+                    : [
+                          [{ header: [1, 2, 3, 4, 5, 6, false] }],
+                          ['bold', 'italic', 'underline', 'strike'],
+                          [{ list: 'ordered' }, { list: 'bullet' }],
+                          [{ script: 'sub' }, { script: 'super' }],
+                          [{ indent: '-1' }, { indent: '+1' }],
+                          [{ direction: 'rtl' }],
+                          [{ color: [] }, { background: [] }],
+                          [{ align: [] }],
+                          ['blockquote', 'code-block'],
+                          ['link', 'image', 'video'],
+                          ['clean'],
+                      ]
+
+                const options = {
+                    modules: {
+                        toolbar: toolbarOptions,
+                        clipboard: {
+                            matchVisual: false,
+                        },
+                    },
+                    placeholder: '내용을 입력하세요...',
+                    theme: 'snow',
+                }
+
+                // Quill 인스턴스 생성
+                const quill = new Quill(editorRef.current, options)
+
+                // 초기 컨텐츠 설정
+                quill.root.innerHTML = value || ''
+
+                // 변경 이벤트 핸들러 설정
+                quill.on('text-change', () => {
+                    const content = quill.root.innerHTML
+                    setEditorContent(content)
+                    onChange(content)
+                })
+
+                quillRef.current = quill
+
+                // 이미지 드롭 이벤트 설정
+                if (onImageDrop) {
+                    const editor = quill.root
+
+                    const handleDrop = async (e: DragEvent) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+
+                        if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+                            const file = e.dataTransfer.files[0]
+                            if (file.type.startsWith('image/')) {
+                                const dataUrl = await handleFileDrop(file)
+                                if (dataUrl && quill) {
+                                    // 커서 위치에 이미지 삽입
+                                    const range = quill.getSelection() || { index: quill.getLength(), length: 0 }
+                                    quill.insertEmbed(range.index, 'image', dataUrl)
+                                }
+                            }
+                        }
+                    }
+
+                    const handleDragOver = (e: DragEvent) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                    }
+
+                    editor.addEventListener('drop', handleDrop)
+                    editor.addEventListener('dragover', handleDragOver)
+
+                    // 클린업 함수
+                    return () => {
+                        editor.removeEventListener('drop', handleDrop)
+                        editor.removeEventListener('dragover', handleDragOver)
+                    }
+                }
+            }
+        }, [editorRef, plainTextMode, value, onChange, onImageDrop, handleFileDrop])
 
         // 컨텐츠가 외부에서 변경되었을 때 에디터 내용 업데이트
         useEffect(() => {
-            if (value !== editorContent && editorRef.current) {
-                // 명시적으로 에디터 내용 설정
-                editorRef.current.setContent(value)
-                setEditorContent(value)
+            if (quillRef.current && value !== editorContent && value !== quillRef.current.root.innerHTML) {
+                quillRef.current.root.innerHTML = value
             }
         }, [value, editorContent])
 
         // 게시하기 전 이미지 처리를 위한 함수
         const processContentBeforeSubmit = async (uploadFunction = uploadImageToS3): Promise<string> => {
-            if (!uploadFunction || tempImages.size === 0 || !editorRef.current) {
+            if (!uploadFunction || tempImages.size === 0) {
                 return editorContent
             }
 
             // 현재 에디터 내용 가져오기
-            let currentContent = editorRef.current.getContent()
+            let currentContent = editorContent
             const tempImageUrls = Array.from(tempImages.keys())
 
             try {
@@ -66,13 +144,6 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(
                     }
                 }
 
-                // 처리된 내용으로 에디터 업데이트 및 상태 업데이트
-                if (editorRef.current) {
-                    editorRef.current.setContent(currentContent)
-                }
-                setEditorContent(currentContent)
-                onChange(currentContent)
-
                 // 임시 이미지 맵 초기화
                 setTempImages(new Map())
 
@@ -88,31 +159,11 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(
             processContentBeforeSubmit,
         }))
 
-        // 에디터 내용 변경 핸들러
-        const handleEditorChange = (content: string) => {
-            setEditorContent(content)
-            onChange(content)
-        }
-
-        // 에디터 설정을 커스텀 훅으로 분리
-        const editorOptions = useEditorConfig({
-            height,
-            plainTextMode,
-            value,
-            handleFileDrop,
-        })
-
         return (
             <div className="editor-container">
-                <Editor
-                    apiKey={apiKey}
-                    onInit={(evt, editor) => {
-                        editorRef.current = editor
-                    }}
-                    value={editorContent}
-                    onEditorChange={handleEditorChange}
-                    init={editorOptions}
-                />
+                <div className="quill-container" style={{ height: `${height}px` }}>
+                    <div ref={editorRef} style={{ height: '100%' }} />
+                </div>
 
                 {/* 버튼 영역 */}
                 {actions && (
@@ -120,6 +171,20 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(
                         <div className="flex justify-end items-center">{actions}</div>
                     </div>
                 )}
+
+                <style jsx>{`
+                    .quill-container {
+                        height: ${height}px;
+                    }
+                    :global(.ql-container) {
+                        font-size: 16px;
+                        height: ${height - 42}px;
+                        overflow-y: auto;
+                    }
+                    :global(.ql-editor) {
+                        min-height: ${height - 42}px;
+                    }
+                `}</style>
             </div>
         )
     },

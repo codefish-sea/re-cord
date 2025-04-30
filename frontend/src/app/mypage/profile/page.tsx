@@ -98,7 +98,7 @@ export default function ProfilePage() {
         formData.append('file', file)
 
         try {
-            const response = await fetch('http://localhost:8090/api/mypage/me/profile-image', {
+            const response = await fetch(`${API_BASE_URL}/api/mypage/me/profile-image`, {
                 method: 'PUT',
 
                 body: formData,
