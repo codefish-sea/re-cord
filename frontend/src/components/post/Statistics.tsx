@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useGlobalLoginUser } from '@/app/stores/auth/loginUser'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBan } from '@fortawesome/free-solid-svg-icons'
-import { BlockButton } from '@/components/block/BlockButton'
+import { BlockButton } from '@/components/block/blockButton'
 
 interface StatisticsProps {
     userId?: number
