@@ -10,5 +10,5 @@ variable "region" {
 
 variable "nickname" {
   description = "nickname"
-  default     = "sik2" # 본인 닉네임
+  default     = "codefish" # 본인 닉네임
 }

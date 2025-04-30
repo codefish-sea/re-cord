@@ -93,7 +93,7 @@ custom:
     frontUrl: "http://${custom.dev.cookieDomain}:3000"
     backUrl: "http://${custom.dev.cookieDomain}:${server.port}"
   prod:
-    cookieDomain: blog.sik2.site
+    cookieDomain: re-cord.site
     frontUrl: "https://www.${custom.prod.cookieDomain}"
     backUrl: "https://api.${custom.prod.cookieDomain}"
   site:

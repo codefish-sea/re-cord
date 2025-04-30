@@ -11,10 +11,11 @@ export default function LoginPage() {
     const [error, setError] = useState('')
 
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+    const FRONT_BASE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL
     const socialLoginForKakaoUrl = `${API_BASE_URL}/oauth2/authorization/kakao`
     const socialLoginForGithubUrl = `${API_BASE_URL}/oauth2/authorization/github`
 
-    const redirectUrlAfterSocialLogin = 'http://localhost:3000'
+    const redirectUrlAfterSocialLogin = `${FRONT_BASE_URL}/home`
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()

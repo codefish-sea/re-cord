@@ -237,7 +237,7 @@ defaults
     timeout client 60s
     timeout server 60s
 
-## api.blog.re-cord.site => 프로젝트 API 서버 도메인
+## api.blog.sik2.site => 프로젝트 API 서버 도메인
 frontend http_front
     bind *:80
     acl host_app1 hdr_beg(host) -i api.blog.re-cord.site
@@ -302,7 +302,7 @@ GRANT ALL PRIVILEGES ON *.* TO 'll_local'@'127.0.0.1';
 GRANT ALL PRIVILEGES ON *.* TO 'll_local'@'172.18.%.%';
 GRANT ALL PRIVILEGES ON *.* TO 'll'@'%';
 
-CREATE DATABASE rdcorddb;
+CREATE DATABASE recorddb;
 
 FLUSH PRIVILEGES;
 "
