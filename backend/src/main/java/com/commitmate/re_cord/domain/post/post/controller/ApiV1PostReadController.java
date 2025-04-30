@@ -7,7 +7,9 @@ import com.commitmate.re_cord.domain.user.block.service.BlockService;
 import com.commitmate.re_cord.global.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,19 +35,20 @@ public class ApiV1PostReadController {
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponseDto> getPost(
             @PathVariable Long postId,
-            @AuthenticationPrincipal SecurityUser currentUser) {
-
-        // 게시글 DTO 조회
+            @AuthenticationPrincipal SecurityUser currentUser
+    ) {
         PostResponseDto dto = postService.getPostById(postId);
-        Long authorId = dto.getUserId();    // 작성자 ID
-
-        // 로그인한 사용자라면(=currentUser != null) 차단 검사
         if (currentUser != null) {
-            Long viewerId = currentUser.getId();
-            blockService.checkIfBlocked(authorId, viewerId, "게시물을 사용할 수 없습니다.");
+            try {
+                blockService.checkIfBlocked(
+                        dto.getUserId(),      // blockerId
+                        currentUser.getId(),  // blockedId
+                        "사용할 수 없는 게시물입니다."
+                );
+            } catch (AccessDeniedException ex) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
         }
-
-        // 차단이 아니거나 비로그인 상태라면 정상 리턴
         return ResponseEntity.ok(dto);
     }
 

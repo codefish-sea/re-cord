@@ -17,6 +17,8 @@ public class PostDTO {
     private String title;
     private String content;
     private LocalDateTime createdAt;
+    private int views;
+    private int likes;
 
 
 
@@ -26,7 +28,9 @@ public class PostDTO {
                 post.getUser().getId(),
                 post.getTitle(),
                 post.getContent(),
-                post.getCreatedAt()
+                post.getCreatedAt(),
+                post.getViews(),
+                post.getLikes()
         );
     }
 

@@ -1,5 +1,5 @@
 import { SearchBar } from '@/app/mypage/components/SearchBar';
-import { BlockList } from '@/components/block/blockList';
+import { BlockList } from '@/components/block/BlockList';
 
 export default function BlockedPage() {
   return (

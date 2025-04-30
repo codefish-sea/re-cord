@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { BlockButton } from './blockButton';
+import { BlockButton } from './BlockButton';
 
 interface BlockedUser {
   id: string;
@@ -12,6 +12,7 @@ interface BlockedUser {
   role: string;
   imageUrl: string;
   isBlocked: boolean;
+  blogName: string;
 }
 
 export function BlockList() {
@@ -45,6 +46,7 @@ export function BlockList() {
             role: 'Unknown',
             imageUrl: user.profileImage || '/default-profile.png',
             isBlocked: true,
+            blogName: user.blogName || user.username || '알 수 없음',
           }))
         );
       } catch (error) {
@@ -57,6 +59,12 @@ export function BlockList() {
 
   // 차단 상태 변경 핸들러
   const handleBlockStatusChange = (userId: string, isBlocked: boolean) => {
+    setBlockedUsers((prev) => 
+      prev.map((user) => 
+        user.id === userId ? { ...user, isBlocked } : user
+      )
+    );
+    
     // 차단 해제 시 목록에서 제거
     if (!isBlocked) {
       setBlockedUsers((prev) => prev.filter((user) => user.id !== userId));
@@ -98,7 +106,7 @@ export function BlockList() {
             >
               <div className="flex items-center space-x-4">
                 {/* 프로필 이미지 */}
-                <Link href={`/blog/${user.id}`} className="relative w-12 h-12 rounded-full overflow-hidden">
+                <Link href={`/blog/${user.blogName}`} className="relative w-12 h-12 rounded-full overflow-hidden">
                   <Image
                     src={user.imageUrl}
                     alt={`${user.name}의 프로필`}
@@ -109,7 +117,7 @@ export function BlockList() {
                   />
                 </Link>
 
-                <Link href={`/blog/${user.id}`}>
+                <Link href={`/blog/${user.blogName}`}>
                   <h3 className="font-medium text-gray-900 hover:text-[#78B3CE] transition-colors cursor-pointer">
                     {user.name}
                   </h3>

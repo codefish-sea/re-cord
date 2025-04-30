@@ -15,7 +15,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, showEditDelete, onDelete }: PostCardProps) {
-    console.log(post) // 각 게시글의 데이터 구조 확인
+    console.log('PostCard received post:', post) // ✅ 이거로 확인
 
     const API_FRONT_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL
 
