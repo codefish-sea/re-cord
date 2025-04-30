@@ -17,6 +17,7 @@ spring:
         format_sql: false
         highlight_sql: false
         use_sql_comments: false
+
 logging:
   level:
     com.back: INFO
