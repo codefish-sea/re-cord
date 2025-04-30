@@ -30,7 +30,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SavedRequestAwareA
 
         String redirectUrl = request.getParameter("state");
         if (redirectUrl == null || redirectUrl.isBlank()) {
-            redirectUrl = "http://localhost:3000"; // fallback URL
+            redirectUrl = "https://www.re-cord.site/home"; // fallback URL
         }
         response.sendRedirect(redirectUrl);
     }

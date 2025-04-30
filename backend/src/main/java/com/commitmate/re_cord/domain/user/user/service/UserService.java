@@ -199,7 +199,7 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("해당 이메일을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(email + ": 해당 이메일을 찾을 수 없습니다."));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

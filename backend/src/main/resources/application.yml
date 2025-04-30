@@ -42,7 +42,8 @@ spring:
             scope: profile_nickname, account_email
             client-name: Kakao
             authorization-grant-type: authorization_code
-            redirect-uri: "${custom.site.backUrl}/{action}/oauth2/code/{registrationId}"
+            redirect-uri: "https://api.blog.re-cord.site/login/oauth2/code/kakao"
+#            redirect-uri: "${custom.site.backUrl}/{action}/oauth2/code/{registrationId}"
           #            redirect-uri: "http://localhost:8090/login/oauth2/code/kakao"
 
           github:
@@ -53,7 +54,8 @@ spring:
               - user:email
             client-name: Github
             authorization-grant-type: authorization_code
-            redirect-uri: "${custom.site.backUrl}/{action}/oauth2/code/{registrationId}"
+            redirect-uri: "https://api.blog.re-cord.site/login/oauth2/code/github"
+          #            redirect-uri: "${custom.site.backUrl}/{action}/oauth2/code/{registrationId}"
 
           google:
             clientId: ON_SECRET
