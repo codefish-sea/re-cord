@@ -100,7 +100,6 @@ export default function ProfilePage() {
         try {
             const response = await fetch(`${API_BASE_URL}/api/mypage/me/profile-image`, {
                 method: 'PUT',
-
                 body: formData,
                 credentials: 'include', // 꼭 있어야 쿠키 보내짐
             })
@@ -110,13 +109,26 @@ export default function ProfilePage() {
             }
 
             const uploadedUrl = await response.text()
-            setProfileImage(uploadedUrl)
+            
+            // URL 처리 로직 추가 - 배포 환경에서의 URL 형식 처리
+            let formattedUrl = uploadedUrl
+            if (uploadedUrl && !uploadedUrl.startsWith('http') && 
+                uploadedUrl !== '/profile.jpg' && uploadedUrl !== '/default-profile.png') {
+                // 상대 경로인 경우 API_BASE_URL과 결합
+                formattedUrl = uploadedUrl.startsWith('/') 
+                    ? `${API_BASE_URL}${uploadedUrl}` 
+                    : `${API_BASE_URL}/${uploadedUrl}`
+            }
+            
+            setProfileImage(formattedUrl)
 
             // 유저 데이터에도 바로 넣어주자 (저장할 때 같이 보내기 위해)
             setUserData((prev) => ({
                 ...prev,
-                profileImageUrl: uploadedUrl,
+                profileImageUrl: formattedUrl,
             }))
+            
+            console.log('이미지 업로드 성공:', formattedUrl)
         } catch (err) {
             console.error('이미지 업로드 에러:', err)
             alert('이미지 업로드에 실패했습니다.')

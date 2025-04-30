@@ -1,5 +1,7 @@
+
 import { SearchBar } from '@/app/mypage/components/SearchBar'
 import { BlockList } from '@/components/block/blockList'
+
 
 export default function BlockedPage() {
     return (
