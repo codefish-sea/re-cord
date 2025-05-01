@@ -35,7 +35,6 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
                 if (response.ok && contentType?.includes('application/json')) {
                     const data = await response.json()
                     setLoginUser(data)
-                    console.log('✅ 로그인된 사용자:', data)
                 } else {
                     setNoLoginUser()
                     console.log('⚠️ 로그인되지 않은 사용자')

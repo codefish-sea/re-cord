@@ -35,12 +35,10 @@ export default function LoginPage() {
                 // 로그인 성공 시 홈페이지로 이동
                 window.location.href = '/'
             } else {
-                const data = await response.json()
-                setError(data.message || '로그인에 실패했습니다.')
+                setError('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.')
             }
         } catch (err) {
-            setError('회원정보가 일치하지 않습니다.')
-            console.error('Login error:', err)
+            setError('로그인에 실패했습니다. 다시 시도해주세요.')
         }
     }
 
