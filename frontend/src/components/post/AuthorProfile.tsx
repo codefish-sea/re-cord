@@ -111,30 +111,18 @@ const AuthorProfile: React.FC<AuthorProfileProps> = ({ userId }) => {
         const defaultStats = { followers: 0, following: 0, posts: 0 }
 
         try {
-            // 팔로워/팔로잉 수 가져오기
             const resCounts = await fetch(`${API_BASE_URL}/api/users/${userId}/counts`, { credentials: 'include' })
-            
-            // 게시글 수 가져오기
-            const postsResponse = await fetch(`${API_BASE_URL}/api/posts/public/count/${userId}`, {})
-            let postsCount = 0;
-            
-            if (postsResponse.ok) {
-                const postsText = await postsResponse.text()
-                postsCount = postsText ? JSON.parse(postsText) : 0
-            } else {
-                console.log('게시글 수를 가져오는데 실패했습니다:', await postsResponse.text())
-            }
 
             if (resCounts.ok) {
                 const { followerCount, followingCount } = await resCounts.json()
                 return {
                     followers: followerCount,
                     following: followingCount,
-                    posts: postsCount, // API에서 가져온 게시글 수 사용
+                    posts: defaultStats.posts, // 필요 시 게시글 수도 업데이트
                 }
             }
 
-            return { ...defaultStats, posts: postsCount }
+            return defaultStats
         } catch (statsErr) {
             console.warn('통계 정보 로드 실패 (기본값 사용):', statsErr)
             return defaultStats
@@ -280,11 +268,11 @@ const AuthorProfile: React.FC<AuthorProfileProps> = ({ userId }) => {
                 <p className="text-xs text-gray-500 mt-1">{author.role}</p>
                 <div className="flex justify-between w-full mt-4 text-xs text-gray-600">
                     <div className="text-center">
-                        <div className="font-bold">{author.stats.following}</div>
+                        <div className="font-bold">{author.stats.followers}</div>
                         <div>팔로워</div>
                     </div>
                     <div className="text-center">
-                        <div className="font-bold">{author.stats.followers}</div>
+                        <div className="font-bold">{author.stats.following}</div>
                         <div>팔로잉</div>
                     </div>
                     <div className="text-center">
