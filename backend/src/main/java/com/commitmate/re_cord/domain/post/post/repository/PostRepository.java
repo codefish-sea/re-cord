@@ -57,55 +57,20 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     // 제목, 내용, 작성자 이름을 기준으로 검색하고, 상태가 EDITED 인 게시물만 가져오는 메서드
     @Query(
             value = """
-    SELECT * FROM post
-    WHERE status = 'PUBLISHED'
-      AND (
-        -- 제목에서 keyword가 일치하는 경우 (한글, 영어 구분)
-        title LIKE CONCAT('%', :keyword, '%')
-        OR
-        -- 내용에서 keyword가 일치하는 경우 (HTML 태그 제외 후 한글, 영어 구분)
-        REGEXP_REPLACE(content, '<img[^>]*>', '') LIKE CONCAT('%', :keyword, '%')
-        OR
-        -- 제목에서 영어 알파벳만 포함된 경우 keyword가 포함된 내용 찾기
-        REGEXP_REPLACE(title, '[^a-zA-Z]', '') LIKE CONCAT('%', :keyword, '%')
-        OR
-        -- 제목에서 한글만 포함된 경우 keyword가 포함된 내용 찾기
-        REGEXP_REPLACE(title, '[^가-힣]', '') LIKE CONCAT('%', :keyword, '%')
-        OR
-        -- 내용에서 영어 알파벳만 포함된 경우 keyword가 포함된 내용 찾기
-        REGEXP_REPLACE(content, '[^a-zA-Z]', '') LIKE CONCAT('%', :keyword, '%')
-        OR
-        -- 내용에서 한글만 포함된 경우 keyword가 포함된 내용 찾기
-        REGEXP_REPLACE(content, '[^가-힣]', '') LIKE CONCAT('%', :keyword, '%')
-      )
-    ORDER BY created_at DESC
-    """,
+        SELECT * FROM post
+        WHERE status = 'PUBLISHED'
+          AND title LIKE CONCAT('%', :keyword, '%')
+        ORDER BY created_at DESC
+        """,
             countQuery = """
-    SELECT COUNT(*) FROM post
-    WHERE status = 'PUBLISHED'
-      AND (
-        -- 제목에서 keyword가 일치하는 경우 (한글, 영어 구분)
-        title LIKE CONCAT('%', :keyword, '%')
-        OR
-        -- 내용에서 keyword가 일치하는 경우 (HTML 태그 제외 후 한글, 영어 구분)
-        REGEXP_REPLACE(content, '<img[^>]*>', '') LIKE CONCAT('%', :keyword, '%')
-        OR
-        -- 제목에서 영어 알파벳만 포함된 경우 keyword가 포함된 내용 찾기
-        REGEXP_REPLACE(title, '[^a-zA-Z]', '') LIKE CONCAT('%', :keyword, '%')
-        OR
-        -- 제목에서 한글만 포함된 경우 keyword가 포함된 내용 찾기
-        REGEXP_REPLACE(title, '[^가-힣]', '') LIKE CONCAT('%', :keyword, '%')
-        OR
-        -- 내용에서 영어 알파벳만 포함된 경우 keyword가 포함된 내용 찾기
-        REGEXP_REPLACE(content, '[^a-zA-Z]', '') LIKE CONCAT('%', :keyword, '%')
-        OR
-        -- 내용에서 한글만 포함된 경우 keyword가 포함된 내용 찾기
-        REGEXP_REPLACE(content, '[^가-힣]', '') LIKE CONCAT('%', :keyword, '%')
-      )
-    """,
+        SELECT COUNT(*) FROM post
+        WHERE status = 'PUBLISHED'
+          AND title LIKE CONCAT('%', :keyword, '%')
+        """,
             nativeQuery = true
     )
     Page<Post> searchVisiblePosts(@Param("keyword") String keyword, Pageable pageable);
+
 
 
 

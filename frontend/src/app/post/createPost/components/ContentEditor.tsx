@@ -160,9 +160,9 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(
         }))
 
         return (
-            <div className="editor-container">
-                <div className="quill-container" style={{ height: `${height}px` }}>
-                    <div ref={editorRef} style={{ height: '100%' }} />
+            <div className="editor-container w-full">
+                <div className="quill-container w-full" style={{ height: `${height}px` }}>
+                    <div ref={editorRef} className="w-full h-full" />
                 </div>
 
                 {/* 버튼 영역 */}
@@ -173,16 +173,29 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(
                 )}
 
                 <style jsx>{`
+                    .editor-container {
+                        display: flex;
+                        flex-direction: column;
+                        width: 100%;
+                    }
                     .quill-container {
                         height: ${height}px;
+                        width: 100%;
                     }
                     :global(.ql-container) {
                         font-size: 16px;
-                        height: ${height - 42}px;
-                        overflow-y: auto;
+                        height: calc(${height}px - 42px); /* 툴바 높이를 고려해 조정 */
+                        overflow-y: hidden; /* 외부 컨테이너의 스크롤 제거 */
                     }
                     :global(.ql-editor) {
-                        min-height: ${height - 42}px;
+                        min-height: calc(${height}px - 42px);
+                        max-height: calc(${height}px - 42px);
+                        padding: 1rem;
+                        overflow-y: auto; /* 내부 편집기에만 스크롤 적용 */
+                    }
+                    :global(.ql-toolbar) {
+                        border-top-left-radius: 0.375rem;
+                        border-top-right-radius: 0.375rem;
                     }
                 `}</style>
             </div>
