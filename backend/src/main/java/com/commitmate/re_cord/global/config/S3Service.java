@@ -22,6 +22,12 @@ import java.util.UUID;
 @Service
 public class S3Service {
 
+    @Value("${aws.access-key}")
+    private String accessKey;
+
+    @Value("${aws.secret-key}")
+    private String secretKey;
+
     @Value("${aws.region}")
     private String region;
 
@@ -32,9 +38,11 @@ public class S3Service {
 
     @PostConstruct
     public void init() {
+        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
         this.amazonS3 = AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
                 .withRegion(region)
-                .build();  // IAM Role 또는 환경변수 기반 인증
+                .build();
     }
 
 
