@@ -124,23 +124,47 @@ export const useLatestPost = (userIdOrBlogname: number | string, initialAuthor?:
 
                 // 이미 author 정보가 있다면 사용자 정보를 다시 가져오지 않음
                 if (!author) {
-                    // 1. 사용자 정보 가져오기 (쿠키 인증 추가)
-                    const userResponse = await fetch(`${API_BASE_URL}/api/auth/${userId}`, {
-                        credentials: 'include',
-                    })
-
-                    if (!userResponse.ok) {
-                        const errorText = await userResponse.text()
-                        console.error('사용자 정보 API 응답:', errorText)
-                        throw new Error(`사용자 정보를 불러오는데 실패했습니다. 상태 코드: ${userResponse.status}`)
-                    }
-
                     try {
-                        const userData = await userResponse.json()
-                        setAuthor(userData)
-                    } catch (jsonError) {
-                        console.error('사용자 정보 JSON 파싱 오류:', jsonError)
-                        throw new Error('사용자 정보 응답을 처리하는데 실패했습니다. 서버가 실행 중인지 확인해주세요.')
+                        // 1. 사용자 정보 가져오기 (공개 API 엔드포인트 사용)
+                        const userResponse = await fetch(`${API_BASE_URL}/api/auth/public/${userId}`, {
+                            credentials: 'include',
+                        })
+
+                        // 공개 엔드포인트가 없거나 401 오류가 발생한 경우 기존 엔드포인트 시도
+                        if (userResponse.status === 404 || userResponse.status === 401) {
+                            console.log('공개 API 엔드포인트를 사용할 수 없습니다. 대체 엔드포인트 사용을 시도합니다.')
+                            const fallbackResponse = await fetch(`${API_BASE_URL}/api/auth/${userId}`, {
+                                credentials: 'include',
+                            })
+
+                            if (!fallbackResponse.ok) {
+                                // 대체 엔드포인트도 실패하면 최소한의 정보로 진행 (오류 방지)
+                                console.warn(`사용자 정보 조회 실패: ${fallbackResponse.status}`)
+                                setAuthor({
+                                    id: userId,
+                                    username: blogName || `사용자 ${userId}`,
+                                    email: '',
+                                    blogName: blogName || undefined,
+                                })
+                            } else {
+                                const userData = await fallbackResponse.json()
+                                setAuthor(userData)
+                            }
+                        } else if (!userResponse.ok) {
+                            throw new Error(`사용자 정보를 불러오는데 실패했습니다. 상태 코드: ${userResponse.status}`)
+                        } else {
+                            const userData = await userResponse.json()
+                            setAuthor(userData)
+                        }
+                    } catch (userError) {
+                        console.error('사용자 정보 로딩 오류:', userError)
+                        // 사용자 정보를 가져오지 못하더라도 게시글은 계속 시도
+                        setAuthor({
+                            id: userId,
+                            username: blogName || `사용자 ${userId}`,
+                            email: '',
+                            blogName: blogName || undefined,
+                        })
                     }
                 }
 
@@ -150,17 +174,22 @@ export const useLatestPost = (userIdOrBlogname: number | string, initialAuthor?:
                 })
 
                 if (!postResponse.ok) {
-                    const errorText = await postResponse.text()
-                    console.error('게시글 API 응답:', errorText)
-                    throw new Error(`최신 게시글을 불러오는데 실패했습니다. 상태 코드: ${postResponse.status}`)
-                }
-
-                try {
-                    const postData = await postResponse.json()
-                    setPost(postData)
-                } catch (jsonError) {
-                    console.error('게시글 데이터 JSON 파싱 오류:', jsonError)
-                    throw new Error('게시글 응답을 처리하는데 실패했습니다. 서버가 실행 중인지 확인해주세요.')
+                    if (postResponse.status === 404) {
+                        // 게시글이 없는 경우는 오류가 아님
+                        setPost(null)
+                    } else {
+                        const errorText = await postResponse.text()
+                        console.error('게시글 API 응답:', errorText)
+                        throw new Error(`최신 게시글을 불러오는데 실패했습니다. 상태 코드: ${postResponse.status}`)
+                    }
+                } else {
+                    try {
+                        const postData = await postResponse.json()
+                        setPost(postData)
+                    } catch (jsonError) {
+                        console.error('게시글 데이터 JSON 파싱 오류:', jsonError)
+                        throw new Error('게시글 응답을 처리하는데 실패했습니다. 서버가 실행 중인지 확인해주세요.')
+                    }
                 }
             } catch (err) {
                 console.error('데이터 로딩 오류:', err)
