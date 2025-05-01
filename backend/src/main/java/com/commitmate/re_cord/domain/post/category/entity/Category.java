@@ -25,7 +25,7 @@ import java.util.List;
 @JsonIgnoreProperties({"user"})  // User 정보 직렬화에서 제외
 public class Category extends BaseEntity {
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
